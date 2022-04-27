@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js" integrity="sha512-/xb5+PNOA079FJkngKI2jvID5lyiqdHXaUUcfmzE0X0BdpkgzIWHC59LOG90a2jDcOyRsd1luOr24UCCAG8NNw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.1/p5.min.js" integrity="sha512-NxocnqsXP3zm0Xb42zqVMvjQIktKEpTIbCXXyhBPxqGZHqhcOXHs4pXI/GoZ8lE+2NJONRifuBpi9DxC58L0Lw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>        
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        var socket = io.connect('http://localhost:3000', ()=>{
+            console.log('conected')
+        })
+        var inicializar = 0
+        var inicilizou = false
+        var cor = ''
+        var linhas2 = []
+
+        function setup(){
+            createCanvas(600,400)
+            background(51)
+            frameRate(8)
+        }
+        function draw(){
+            noStroke()
+            if(mouseIsPressed){
+                cor = 'red'
+            } else {
+                cor = 'blue'
+            }
+
+            var pincel = {posX: mouseX, posY: mouseY, cor}
+
+            socket.emit('desenhar', pincel)
+            desenhar(pincel)
+   
+            socket.on('historico', (linhas) => {
+                console.log("TESTE TESTESTETET",linhas)
+                for(linha in linhas){
+                    if(linha.cor !== ''){
+                        desenhar(linha)
+                        console.log('desenhou --')
+                    }
+                }
+            })
+
+            socket.on('desenhar', (linha)=>{
+                desenhar(linha)
+            })
+
+            function desenhar(desenho){
+                if(desenho.cor !== ''){
+                    fill(desenho.cor)
+                    ellipse(desenho.posX, desenho.posY, 30, 30)
+                    fill('purple')
+                    ellipse(desenho.posX, desenho.posY, 25, 25)
+                }
+            }
+        }
+    </script>
+</body>
+</html>
